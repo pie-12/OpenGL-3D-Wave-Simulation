@@ -7,7 +7,7 @@ File này ghi lại toàn bộ tiến trình của dự án. Khi một phiên l�
 
 ### **I. Trạng Thái Hiện Tại (Cập nhật ngày 16/11/2025)**
 
-**Commit cuối cùng:** `4058235` - "feat: Add skydome, tiled ocean, and directional sun"
+**Commit cuối cùng:** `ead1e51` - "docs: Add problem-solution section to NOTES.md"
 
 **Mô tả chi tiết các tính năng đã triển khai:**
 Dự án hiện tại là một chương trình mô phỏng 3D hoàn chỉnh, thể hiện một cảnh quan đại dương sống động với các yếu tố sau:
@@ -27,6 +27,9 @@ Dự án hiện tại là một chương trình mô phỏng 3D hoàn chỉnh, th
 4.  **Thuyền Nhấp Nhô:**
     *   **Mô hình:** Một con thuyền đơn giản được lắp ghép từ 2 khối hộp (thân và cabin).
     *   **Tương tác với sóng:** Vị trí theo chiều dọc (trục Y) của con thuyền được tính toán lại trong mỗi frame dựa trên chiều cao của mặt sóng ngay tại tâm. Điều này làm cho con thuyền nhấp nhô lên xuống một cách tự nhiên theo sóng biển.
+
+5.  **Tài liệu Lý thuyết (`NOTES.md`):**
+    *   **Mục đích:** Một file Markdown chi tiết đã được tạo để tổng hợp toàn bộ kiến thức lý thuyết, các khái niệm đồ họa máy tính, và các vấn đề phát sinh cùng giải pháp đã được áp dụng trong dự án. File này đóng vai trò là tài liệu ôn tập và tham khảo chuyên sâu.
 
 ### **II. Các Hướng Phát Triển Tiếp Theo**
 
