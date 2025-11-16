@@ -37,6 +37,7 @@ int mouseButton;
 
 // Animation
 float animationTime = 0.0f;
+float cubeAngle = 0.0f; // Góc quay cho khối hộp
 
 // Mô hình sóng
 PolygonMesh waveMesh;
@@ -146,6 +147,49 @@ void initializeControlPoints() {
     memcpy(controlPoints, initialControlPoints, sizeof(controlPoints));
 }
 
+// --- Hàm vẽ khối hộp ---
+void drawCube() {
+    glBegin(GL_QUADS);
+        // Mặt trước
+        glNormal3f(0.0, 0.0, 1.0);
+        glVertex3f(-0.5, -0.5, 0.5);
+        glVertex3f(0.5, -0.5, 0.5);
+        glVertex3f(0.5, 0.5, 0.5);
+        glVertex3f(-0.5, 0.5, 0.5);
+        // Mặt sau
+        glNormal3f(0.0, 0.0, -1.0);
+        glVertex3f(-0.5, -0.5, -0.5);
+        glVertex3f(-0.5, 0.5, -0.5);
+        glVertex3f(0.5, 0.5, -0.5);
+        glVertex3f(0.5, -0.5, -0.5);
+        // Mặt trên
+        glNormal3f(0.0, 1.0, 0.0);
+        glVertex3f(-0.5, 0.5, 0.5);
+        glVertex3f(0.5, 0.5, 0.5);
+        glVertex3f(0.5, 0.5, -0.5);
+        glVertex3f(-0.5, 0.5, -0.5);
+        // Mặt dưới
+        glNormal3f(0.0, -1.0, 0.0);
+        glVertex3f(-0.5, -0.5, 0.5);
+        glVertex3f(-0.5, -0.5, -0.5);
+        glVertex3f(0.5, -0.5, -0.5);
+        glVertex3f(0.5, -0.5, 0.5);
+        // Mặt phải
+        glNormal3f(1.0, 0.0, 0.0);
+        glVertex3f(0.5, -0.5, 0.5);
+        glVertex3f(0.5, -0.5, -0.5);
+        glVertex3f(0.5, 0.5, -0.5);
+        glVertex3f(0.5, 0.5, 0.5);
+        // Mặt trái
+        glNormal3f(-1.0, 0.0, 0.0);
+        glVertex3f(-0.5, -0.5, 0.5);
+        glVertex3f(-0.5, 0.5, 0.5);
+        glVertex3f(-0.5, 0.5, -0.5);
+        glVertex3f(-0.5, -0.5, -0.5);
+    glEnd();
+}
+
+
 // --- Hàm của OpenGL ---
 
 void init() {
@@ -185,6 +229,28 @@ void display() {
     GLfloat lightPosition[] = { 10.0f, 10.0f, 10.0f, 1.0f };
     glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 
+    // --- Vẽ khối hộp ---
+    glPushMatrix(); // Lưu trạng thái ma trận hiện tại
+
+    // Thiết lập vật liệu cho khối hộp (ví dụ: màu gỗ)
+    GLfloat cubeAmbient[] = { 0.6f, 0.4f, 0.2f, 1.0f };
+    GLfloat cubeDiffuse[] = { 0.6f, 0.4f, 0.2f, 1.0f };
+    GLfloat cubeSpecular[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+    GLfloat cubeShininess[] = { 32.0f };
+    glMaterialfv(GL_FRONT, GL_AMBIENT, cubeAmbient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, cubeDiffuse);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, cubeSpecular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, cubeShininess);
+
+    // Áp dụng các phép biến đổi cho khối hộp
+    glTranslatef(0.0f, 1.0f, 0.0f); // Di chuyển khối hộp lên trên mặt nước
+    glRotatef(cubeAngle, 1.0f, 1.0f, 1.0f); // Quay quanh trục (1,1,1)
+
+    drawCube(); // Vẽ khối hộp
+
+    glPopMatrix(); // Khôi phục lại trạng thái ma trận trước đó
+
+    // --- Vẽ sóng biển ---
     GLfloat matAmbient[] = { 0.3f, 0.5f, 0.8f, 1.0f };
     GLfloat matDiffuse[] = { 0.5f, 0.7f, 1.0f, 1.0f };
     GLfloat matSpecular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -194,7 +260,6 @@ void display() {
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, matSpecular);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, matShininess);
 
-    // Vẽ lưới sóng
     glBegin(GL_TRIANGLES);
     for (const auto& face : waveMesh.faces) {
         int v_idx[] = {face.v1, face.v2, face.v3};
@@ -215,6 +280,7 @@ void reshape(int w, int h) {
 }
 
 void update(int value) {
+    // Cập nhật sóng
     animationTime += 0.03f;
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
@@ -223,6 +289,13 @@ void update(int value) {
         }
     }
     createOrUpdateWaveMesh();
+
+    // Cập nhật góc quay của khối hộp
+    cubeAngle += 0.5f;
+    if (cubeAngle > 360.0f) {
+        cubeAngle -= 360.0f;
+    }
+
     glutPostRedisplay();
     glutTimerFunc(16, update, 0);
 }
