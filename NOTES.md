@@ -129,3 +129,20 @@ Một kỹ thuật đơn giản để tạo bầu trời là vẽ một nửa h�
 3.  Vẽ vật thể.
 4.  Bật lại hệ thống chiếu sáng: `glEnable(GL_LIGHTING)`.
 Tất cả nên được thực hiện trong một cặp `glPushMatrix`/`glPopMatrix` để không ảnh hưởng đến các đối tượng khác.
+---
+
+### **Chương 6: Vấn Đề Phát Sinh và Giải Pháp**
+
+#### **6.1. Lỗi không tìm thấy thư viện OpenGL/GLUT khi biên dịch**
+
+*   **Hiện tượng:** Trình biên dịch báo lỗi `cannot find -lglut`, `cannot find -lGLU`, `cannot find -lGL`.
+*   **Chẩn đoán:** Các thư viện phát triển của OpenGL/GLUT không được cài đặt hoặc không nằm trong đường dẫn tìm kiếm của trình biên dịch trong môi trường MinGW/MSYS2. Tên thư viện mặc định cho `g++` trên Linux khác với trên MinGW.
+*   **Giải pháp:**
+    1.  Cài đặt thư viện `freeglut` thông qua `pacman` (nếu chưa có): `pacman -S mingw-w64-x86_64-freeglut`.
+    2.  Sử dụng tên thư viện chuẩn MinGW khi biên dịch: `-lfreeglut -lopengl32 -lglu32` thay vì `-lglut -lGLU -lGL`.
+
+#### **6.2. Lỗi cú pháp (typo) trong hàm `mouse`**
+
+*   **Hiện tượng:** Lỗi `expected unqualified-id before '}' token` tại cuối hàm `mouse`.
+*   **Chẩn đoán:** Thiếu dấu chấm phẩy `;` ở cuối một câu lệnh gán.
+*   **Giải pháp:** Sửa `mouseButton = button.` thành `mouseButton = button;`.
