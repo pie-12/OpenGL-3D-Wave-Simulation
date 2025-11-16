@@ -37,7 +37,7 @@ int mouseButton;
 
 // Animation
 float animationTime = 0.0f;
-float cubeAngle = 0.0f; // Góc quay cho khối hộp
+float objectAngle = 0.0f; // Góc quay cho vật thể
 
 // Mô hình sóng
 PolygonMesh waveMesh;
@@ -129,64 +129,82 @@ void createOrUpdateWaveMesh() {
 }
 
 void initializeControlPoints() {
+    float size = 4.0f;
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
             initialControlPoints[i][j] = {
-                (float)i * 2.0f - 3.0f,
+                (i / 3.0f) * size - size / 2.0f,
                 0.0f,
-                (float)j * 2.0f - 3.0f
+                (j / 3.0f) * size - size / 2.0f
             };
         }
     }
-    // Tạo chút gợn sóng ban đầu
-    initialControlPoints[1][1].y = 0.5f;
-    initialControlPoints[1][2].y = -0.5f;
-    initialControlPoints[2][1].y = -0.5f;
-    initialControlPoints[2][2].y = 0.5f;
-    
     memcpy(controlPoints, initialControlPoints, sizeof(controlPoints));
 }
 
-// --- Hàm vẽ khối hộp ---
-void drawCube() {
+// --- Hàm vẽ vật thể ---
+void drawBlock(float width, float height, float depth) {
+    float w = width / 2.0f;
+    float h = height / 2.0f;
+    float d = depth / 2.0f;
+
     glBegin(GL_QUADS);
         // Mặt trước
         glNormal3f(0.0, 0.0, 1.0);
-        glVertex3f(-0.5, -0.5, 0.5);
-        glVertex3f(0.5, -0.5, 0.5);
-        glVertex3f(0.5, 0.5, 0.5);
-        glVertex3f(-0.5, 0.5, 0.5);
+        glVertex3f(-w, -h, d);
+        glVertex3f(w, -h, d);
+        glVertex3f(w, h, d);
+        glVertex3f(-w, h, d);
         // Mặt sau
         glNormal3f(0.0, 0.0, -1.0);
-        glVertex3f(-0.5, -0.5, -0.5);
-        glVertex3f(-0.5, 0.5, -0.5);
-        glVertex3f(0.5, 0.5, -0.5);
-        glVertex3f(0.5, -0.5, -0.5);
+        glVertex3f(-w, -h, -d);
+        glVertex3f(-w, h, -d);
+        glVertex3f(w, h, -d);
+        glVertex3f(w, -h, -d);
         // Mặt trên
         glNormal3f(0.0, 1.0, 0.0);
-        glVertex3f(-0.5, 0.5, 0.5);
-        glVertex3f(0.5, 0.5, 0.5);
-        glVertex3f(0.5, 0.5, -0.5);
-        glVertex3f(-0.5, 0.5, -0.5);
+        glVertex3f(-w, h, d);
+        glVertex3f(w, h, d);
+        glVertex3f(w, h, -d);
+        glVertex3f(-w, h, -d);
         // Mặt dưới
         glNormal3f(0.0, -1.0, 0.0);
-        glVertex3f(-0.5, -0.5, 0.5);
-        glVertex3f(-0.5, -0.5, -0.5);
-        glVertex3f(0.5, -0.5, -0.5);
-        glVertex3f(0.5, -0.5, 0.5);
+        glVertex3f(-w, -h, d);
+        glVertex3f(-w, -h, -d);
+        glVertex3f(w, -h, -d);
+        glVertex3f(w, -h, d);
         // Mặt phải
         glNormal3f(1.0, 0.0, 0.0);
-        glVertex3f(0.5, -0.5, 0.5);
-        glVertex3f(0.5, -0.5, -0.5);
-        glVertex3f(0.5, 0.5, -0.5);
-        glVertex3f(0.5, 0.5, 0.5);
+        glVertex3f(w, -h, d);
+        glVertex3f(w, -h, -d);
+        glVertex3f(w, h, -d);
+        glVertex3f(w, h, d);
         // Mặt trái
         glNormal3f(-1.0, 0.0, 0.0);
-        glVertex3f(-0.5, -0.5, 0.5);
-        glVertex3f(-0.5, 0.5, 0.5);
-        glVertex3f(-0.5, 0.5, -0.5);
-        glVertex3f(-0.5, -0.5, -0.5);
+        glVertex3f(-w, -h, d);
+        glVertex3f(-w, h, d);
+        glVertex3f(-w, h, -d);
+        glVertex3f(-w, -h, -d);
     glEnd();
+}
+
+void drawBoat() {
+    glPushMatrix();
+    // Thân tàu
+    GLfloat hullAmbient[] = { 0.6f, 0.4f, 0.2f, 1.0f };
+    GLfloat hullDiffuse[] = { 0.6f, 0.4f, 0.2f, 1.0f };
+    glMaterialfv(GL_FRONT, GL_AMBIENT, hullAmbient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, hullDiffuse);
+    drawBlock(2.0f, 0.4f, 0.8f);
+
+    // Cabin
+    GLfloat cabinAmbient[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+    GLfloat cabinDiffuse[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+    glMaterialfv(GL_FRONT, GL_AMBIENT, cabinAmbient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, cabinDiffuse);
+    glTranslatef(0.0f, 0.45f, 0.0f); // Di chuyển cabin lên trên thân tàu
+    drawBlock(0.6f, 0.5f, 0.6f);
+    glPopMatrix();
 }
 
 
@@ -229,36 +247,38 @@ void display() {
     GLfloat lightPosition[] = { 10.0f, 10.0f, 10.0f, 1.0f };
     glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 
-    // --- Vẽ khối hộp ---
-    glPushMatrix(); // Lưu trạng thái ma trận hiện tại
+    // --- Vẽ thuyền ---
+    glPushMatrix();
 
-    // Thiết lập vật liệu cho khối hộp (ví dụ: màu gỗ)
-    GLfloat cubeAmbient[] = { 0.6f, 0.4f, 0.2f, 1.0f };
-    GLfloat cubeDiffuse[] = { 0.6f, 0.4f, 0.2f, 1.0f };
-    GLfloat cubeSpecular[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-    GLfloat cubeShininess[] = { 32.0f };
-    glMaterialfv(GL_FRONT, GL_AMBIENT, cubeAmbient);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, cubeDiffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, cubeSpecular);
-    glMaterialfv(GL_FRONT, GL_SHININESS, cubeShininess);
+    // Tính toán vị trí nhấp nhô
+    // Vị trí (x,z) của thuyền trong thế giới là (0,0)
+    // Tham số (u,v) tương ứng trên mặt Bezier là (0.5, 0.5)
+    Point3D boatPosOnWave = calculateBezierPoint(0.5f, 0.5f);
+    float boatY = boatPosOnWave.y;
 
-    // Áp dụng các phép biến đổi cho khối hộp
-    glTranslatef(0.0f, 1.0f, 0.0f); // Di chuyển khối hộp lên trên mặt nước
-    glRotatef(cubeAngle, 1.0f, 1.0f, 1.0f); // Quay quanh trục (1,1,1)
+    // Thiết lập vật liệu chung cho thuyền (sẽ được ghi đè trong drawBoat)
+    GLfloat boatSpecular[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+    GLfloat boatShininess[] = { 32.0f };
+    glMaterialfv(GL_FRONT, GL_SPECULAR, boatSpecular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, boatShininess);
 
-    drawCube(); // Vẽ khối hộp
+    // Áp dụng các phép biến đổi cho thuyền
+    glTranslatef(0.0f, boatY + 0.2f, 0.0f); // Di chuyển thuyền đến vị trí trên sóng
+    glRotatef(objectAngle, 0.0f, 1.0f, 0.0f); // Quay thuyền quanh trục Y
 
-    glPopMatrix(); // Khôi phục lại trạng thái ma trận trước đó
+    drawBoat(); // Vẽ thuyền
+
+    glPopMatrix();
 
     // --- Vẽ sóng biển ---
-    GLfloat matAmbient[] = { 0.3f, 0.5f, 0.8f, 1.0f };
-    GLfloat matDiffuse[] = { 0.5f, 0.7f, 1.0f, 1.0f };
-    GLfloat matSpecular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    GLfloat matShininess[] = { 120.0f };
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, matAmbient);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, matDiffuse);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, matSpecular);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, matShininess);
+    GLfloat waveAmbient[] = { 0.3f, 0.5f, 0.8f, 1.0f };
+    GLfloat waveDiffuse[] = { 0.5f, 0.7f, 1.0f, 1.0f };
+    GLfloat waveSpecular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat waveShininess[] = { 120.0f };
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, waveAmbient);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, waveDiffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, waveSpecular);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, waveShininess);
 
     glBegin(GL_TRIANGLES);
     for (const auto& face : waveMesh.faces) {
@@ -290,10 +310,10 @@ void update(int value) {
     }
     createOrUpdateWaveMesh();
 
-    // Cập nhật góc quay của khối hộp
-    cubeAngle += 0.5f;
-    if (cubeAngle > 360.0f) {
-        cubeAngle -= 360.0f;
+    // Cập nhật góc quay của vật thể
+    objectAngle += 0.5f;
+    if (objectAngle > 360.0f) {
+        objectAngle -= 360.0f;
     }
 
     glutPostRedisplay();
